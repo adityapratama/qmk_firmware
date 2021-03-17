@@ -8,8 +8,8 @@
 #define PRODUCT_ID      0x6060
 #define DEVICE_VER      0x0001
 #define MANUFACTURER    github.com/adityapratama
-#define PRODUCT         dactyl_manuformone
-#define DESCRIPTION     dactyl_manuformone
+#define PRODUCT         dactyl_manuform_stm32
+#define DESCRIPTION     dactyl_manuform_stm32
 
 /* key matrix size */
 #define MATRIX_ROWS 6
