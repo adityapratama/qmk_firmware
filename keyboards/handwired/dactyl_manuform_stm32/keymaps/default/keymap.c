@@ -1,5 +1,18 @@
 #include "dactyl_manuformone_stm32.h"
 
+#define GUI_TAB_TIMER_WAIT_MS 500
+
+#define BSPC_LAYER_2 LT(2, KC_BSPC)
+#define ENT_LAYER_1 LT(1, KC_ENT)
+
+enum custom_keycodes {          // Make sure have the awesome keycode ready
+  GUI_TAB = SAFE_RANGE,
+  MACOS_COPY,
+  MACOS_PASTE,
+  MACOS_CHANGE_WINDOW,
+  TMUX_NORMAL_MODE,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 	KEYMAP(
@@ -7,14 +20,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TAB, KC_QUOT, KC_COMM, KC_DOT, KC_P, KC_Y, KC_F, KC_G, KC_C, KC_R, KC_L, KC_SLSH, 
 		MT(MOD_LCTL, KC_ESC), KC_A, KC_O, KC_E, KC_U, KC_I, KC_D, KC_H, KC_T, KC_N, KC_S, KC_MINS, 
 		KC_LSFT, KC_SCLN, KC_Q, KC_J, KC_K, KC_X, KC_B, KC_M, KC_W, KC_V, KC_Z, KC_RSFT, 
-		KC_SPC, MT(MOD_LCTL, KC_ESC), MT(MOD_LALT, KC_DOWN), MT(MOD_LGUI, KC_UP), MT(MOD_RGUI, KC_LEFT), MT(MOD_RALT, KC_RGHT), LT(1, KC_ENT), LT(2, KC_BSPC),
+		KC_SPC, MT(MOD_LCTL, KC_ESC), MT(MOD_LALT, KC_DOWN), MT(MOD_LGUI, KC_UP), MT(MOD_RGUI, KC_LEFT), MT(MOD_RALT, KC_RGHT), ENT_LAYER_1, BSPC_LAYER_2,
 		KC_LGUI, KC_LALT, MT(MOD_LSFT, KC_TAB), MO(1), MO(1), MT(MOD_RSFT, KC_ESC), KC_RALT, KC_RGUI),
 
   KEYMAP(
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_MSTP, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, KC_MPLY, KC_TRNS, KC_TRNS, KC_TRNS, 
-		KC_TRNS, KC_LBRC, KC_7, KC_8, KC_9, KC_RBRC, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_SCLN, kC_4, KC_5, KC_6, KC_EQL, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-		KC_TRNS, KC_GRV, KC_1, KC_2, KC_3, KC_BSLS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_LBRC, KC_7, KC_8, KC_9, KC_RBRC, TMUX_NORMAL_MODE, KC_TRNS, MACOS_COPY, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_SCLN, KC_4, KC_5, KC_6, KC_EQL, KC_TRNS, GUI_TAB, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+		KC_TRNS, KC_GRV, KC_1, KC_2, KC_3, KC_BSLS, KC_TRNS, MACOS_CHANGE_WINDOW, KC_TRNS, MACOS_PASTE, KC_TRNS, KC_TRNS,
 		KC_0, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS),
 
@@ -131,3 +144,64 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)
 
 };
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+      case BSPC_LAYER_2:
+        return 110;
+      case ENT_LAYER_1:
+        return 110;
+      default:
+        return TAPPING_TERM;
+    }
+}
+
+bool is_gui_tab_active = false;
+uint16_t gui_tab_timer = 0;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  switch (keycode) {
+    case GUI_TAB:
+      if (record->event.pressed) {
+        if (!is_gui_tab_active) {
+          is_gui_tab_active = true;
+          register_code(KC_LGUI);
+        }
+        gui_tab_timer = timer_read();
+        register_code(KC_TAB);
+      } else {
+        unregister_code(KC_TAB);
+      }
+      break;
+    case MACOS_COPY:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LGUI("c"));
+      }
+      break;
+    case MACOS_PASTE:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LGUI("v"));
+      }
+      break;
+    case MACOS_CHANGE_WINDOW:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LGUI("`"));
+      }
+      break;
+    case TMUX_NORMAL_MODE:
+      if (record->event.pressed) {
+        SEND_STRING(SS_LCTRL("a")"[");
+      }
+      break;
+  }
+  return true;
+}
+
+void matrix_scan_user(void) {
+  if (is_gui_tab_active) {
+    if (timer_elapsed(gui_tab_timer) > GUI_TAB_TIMER_WAIT_MS) {
+      unregister_code(KC_LGUI);
+      is_gui_tab_active = false;
+    }
+  }
+}
