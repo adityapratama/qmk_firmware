@@ -5,11 +5,11 @@
 #define BSPC_LAYER_2 LT(2, KC_BSPC)
 #define ENT_LAYER_1 LT(1, KC_ENT)
 
-#define CTRL_H RCTL_T(KC_H)
-#define SHIFT_T RSFT_T(KC_T)
+#define CTRL_H MT(MOD_RCTL, KC_H)
+#define SHIFT_T MT(MOD_RSFT, KC_T)
 
-#define CTRL_U LCTL_T(KC_U)
-#define SHIFT_E LSFT_T(KC_E)
+#define CTRL_U MT(MOD_LCTL, KC_U)
+#define SHIFT_E MT(MOD_LSFT, KC_E)
 
 enum custom_keycodes {          // Make sure have the awesome keycode ready
   GUI_TAB = SAFE_RANGE,
