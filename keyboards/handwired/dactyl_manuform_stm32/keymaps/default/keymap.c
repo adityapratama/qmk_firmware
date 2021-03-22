@@ -5,6 +5,12 @@
 #define BSPC_LAYER_2 LT(2, KC_BSPC)
 #define ENT_LAYER_1 LT(1, KC_ENT)
 
+#define CTRL_H RCTL_T(KC_H)
+#define SHIFT_T RSFT_T(KC_T)
+
+#define CTRL_U LCTL_T(KC_U)
+#define SHIFT_E LSFT_T(KC_E)
+
 enum custom_keycodes {          // Make sure have the awesome keycode ready
   GUI_TAB = SAFE_RANGE,
   MACOS_COPY,
@@ -18,7 +24,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 	KEYMAP(
 		KC_GRV, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_BSLS, 
 		KC_TAB, KC_QUOT, KC_COMM, KC_DOT, KC_P, KC_Y, KC_F, KC_G, KC_C, KC_R, KC_L, KC_SLSH, 
-		MT(MOD_LCTL, KC_ESC), KC_A, KC_O, KC_E, KC_U, KC_I, KC_D, KC_H, KC_T, KC_N, KC_S, KC_MINS, 
+		MT(MOD_LCTL, KC_ESC), KC_A, KC_O, SHIFT_E, CTRL_U, KC_I, KC_D, CTRL_H, SHIFT_T, KC_N, KC_S, KC_MINS, 
 		KC_LSFT, KC_SCLN, KC_Q, KC_J, KC_K, KC_X, KC_B, KC_M, KC_W, KC_V, KC_Z, KC_RSFT, 
 		KC_SPC, MT(MOD_LCTL, KC_ESC), MT(MOD_LALT, KC_DOWN), MT(MOD_LGUI, KC_UP), MT(MOD_RGUI, KC_LEFT), MT(MOD_RALT, KC_RGHT), ENT_LAYER_1, BSPC_LAYER_2,
 		KC_LGUI, KC_LALT, MT(MOD_LSFT, KC_TAB), MO(1), MO(1), MT(MOD_RSFT, KC_ESC), KC_RALT, KC_RGUI),
@@ -144,6 +150,36 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)
 
 };
+
+bool get_ignore_mod_tap_interrupt(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case CTRL_H:
+            return true;
+        case CTRL_U:
+            return true;
+        case SHIFT_T:
+            return true;
+        case SHIFT_E:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool get_tapping_force_hold(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case CTRL_H:
+            return true;
+        case CTRL_U:
+            return true;
+        case SHIFT_T:
+            return true;
+        case SHIFT_E:
+            return true;
+        default:
+            return false;
+    }
+}
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
